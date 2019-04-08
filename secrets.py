@@ -1,0 +1,8 @@
+MY_CLIENT_ID = 'zqkVEuvow0MVsg'
+MY_CLIENT_SECRET='hop99KKo2uu55nAJhRmMCj6EE38'
+MY_USER_AGENT='emailing by /u/dhia_1997'
+MY_REDDIT_USERNAME='dhia_1997'
+MY_REDDIT_PASSWORD='24537975Poi'
+SENDER_EMAIL = 'testpurpose1919@gmail.com'
+SENDER_PASSWORD = 'test@Test.2019'
+RECEIVER_EMAIL = 'dhiaeddine214@gmail.com'

@@ -7,4 +7,4 @@ app = Flask(__name__)
 def query_example():
     return 'Todo...'
 if __name__ == "__main__":
-    app.run(environ.get('PORT'))
+    app.run(environ.get('PORT'), 5000)

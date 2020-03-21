@@ -1,6 +1,7 @@
 import secrets
 import praw
-import smtplib
+# import smtplib
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 # Returns tuples containing keyword count, weighted score, post info dict of matching posts
@@ -16,7 +17,7 @@ MIN_RELEVANT_WEIGHTED_SCORE = 20
 # 3. min number of secondary terms needed to be a match
 # KEYWORDS_GROUP = (['angular'], ['security', 'nodejs', 'new', 'node js', 'mean'], 1)
 KEYWORDS_GROUP = (['angular'], ['true', 'crazy', 'real'], 1)
-
+matching_posts_info_string = ""
 # Returns a count of secondary terms if is relevant, -1 otherwise
 
 
@@ -60,7 +61,8 @@ def get_reddit_posts():
                      'comment_count': len(list(submission.comments))}
         matching_posts_info.append(
             (keyword_count, weighted_score, post_dict))
-        print("matching_posts_info in fuckin loop", matching_posts_info)
+        global matching_posts_info_string
+        matching_posts_info_string += matching_posts_info_string + post_dict.get('url') + ' '
     # Sort asc by the keyword count, then desc by weighted score (can't sort by post_dict)
     # matching_posts_info.sort(key=lambda x: (x[0], -1 * x[1]))
     return matching_posts_info
@@ -116,4 +118,7 @@ def get_reddit_posts():
 
 if __name__ == "__main__":
     matching_posts_info = get_reddit_posts()
-    print("matching_posts_info", matching_posts_info)
+    # print("matching_posts_info", matching_posts_info)
+    bashCommand = "node index.js " + matching_posts_info_string + secrets.PASS_GMAIL 
+    print(bashCommand)
+    os.system(bashCommand)

@@ -20,4 +20,4 @@ termcolor==1.1.0
 update-checker==0.16
 urllib3==1.23
 websocket-client==0.56.0
-Werkzeug==0.15.2
+Werkzeug==0.15.3

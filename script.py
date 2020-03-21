@@ -5,19 +5,21 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 # Returns tuples containing keyword count, weighted score, post info dict of matching posts
 
-SUBREDDIT_TO_EXPLORE = 'askreddit'
+SUBREDDIT_TO_EXPLORE = 'webdev'
 NUM_POSTS_TO_EXPLORE = 10
 SCORE_WEIGHT = 3
 COMMENT_WEIGHT = 1
-# The following is the minimum relevant weighted score to be a match, 
+# The following is the minimum relevant weighted score to be a match,
 # where weighted score = SCORE_WEIGHT * score + COMMENT_WEIGHT * num comments
 MIN_RELEVANT_WEIGHTED_SCORE = 20
-# The following tuple contains 1. list of required terms/stems, 2. list of secondary terms, 
+# The following tuple contains 1. list of required terms/stems, 2. list of secondary terms,
 # 3. min number of secondary terms needed to be a match
 # KEYWORDS_GROUP = (['angular'], ['security', 'nodejs', 'new', 'node js', 'mean'], 1)
-KEYWORDS_GROUP = (['conspiracy'], ['true', 'crazy', 'real'], 1)
+KEYWORDS_GROUP = (['angular'], ['true', 'crazy', 'real'], 1)
 
 # Returns a count of secondary terms if is relevant, -1 otherwise
+
+
 def get_keyword_count(str):
     keyword_count = 0
     required, secondary, min_secondary = KEYWORDS_GROUP
@@ -31,6 +33,8 @@ def get_keyword_count(str):
     if keyword_count < min_secondary:
         return -1
     return keyword_count
+
+
 def get_reddit_posts():
     # Authenticate
     reddit = praw.Reddit(client_id=secrets.MY_CLIENT_ID,
@@ -47,25 +51,29 @@ def get_reddit_posts():
     for submission in subreddit.rising(limit=NUM_POSTS_TO_EXPLORE):
         print(submission)
         keyword_count = get_keyword_count(submission.title.lower())
-        weighted_score = SCORE_WEIGHT * submission.score + COMMENT_WEIGHT * len(list(submission.comments))
-        if keyword_count != -1 and weighted_score > MIN_RELEVANT_WEIGHTED_SCORE:
-            post_dict = {'title': submission.title, \
-            'score': submission.score, \
-            'url': submission.url, \
-            'comment_count': len(list(submission.comments))}
-            matching_posts_info.append((keyword_count, weighted_score, post_dict))
+        weighted_score = SCORE_WEIGHT * submission.score + \
+            COMMENT_WEIGHT * len(list(submission.comments))
+        # if keyword_count != -1 and weighted_score > MIN_RELEVANT_WEIGHTED_SCORE:
+        post_dict = {'title': submission.title,
+                     'score': submission.score,
+                     'url': submission.url,
+                     'comment_count': len(list(submission.comments))}
+        matching_posts_info.append(
+            (keyword_count, weighted_score, post_dict))
+        print("matching_posts_info in fuckin loop", matching_posts_info)
     # Sort asc by the keyword count, then desc by weighted score (can't sort by post_dict)
-    matching_posts_info.sort(key=lambda x: (x[0], -1 * x[1]))
+    # matching_posts_info.sort(key=lambda x: (x[0], -1 * x[1]))
     return matching_posts_info
 
-def send_email():
+# def send_email():
     matching_posts_info = get_reddit_posts()
     print(matching_posts_info)
     reddit_email_content = ''
     for keyword_count, weighted_score, post in matching_posts_info:
         # Append info for this relevant post to the email content
         reddit_email_content += post['title'] + '<br>' + 'Score: ' + str(post['score']) + \
-        '<br>' + 'Comments: ' + str(post['comment_count']) + '<br>' + post['url'] + '<br><br>'
+            '<br>' + 'Comments: ' + \
+            str(post['comment_count']) + '<br>' + post['url'] + '<br><br>'
     if len(matching_posts_info) > 0:
         email_list = [
             secrets.RECEIVER_EMAIL
@@ -77,7 +85,6 @@ def send_email():
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.ehlo()
         server.starttls()
-        print(secrets.SENDER_EMAIL)
         server.login(secrets.SENDER_EMAIL, secrets.SENDER_PASSWORD)
         for email_address in email_list:
             # Send emails in multiple part messages
@@ -102,8 +109,11 @@ def send_email():
             </html>
             ''' % reddit_email_content
             msg.attach(MIMEText(html, 'html'))
-            server.sendmail(secrets.SENDER_EMAIL, email_address, msg.as_string())
+            server.sendmail(secrets.SENDER_EMAIL,
+                            email_address, msg.as_string())
         server.quit()
+
+
 if __name__ == "__main__":
-	print("hello world")
-	send_email()
+    matching_posts_info = get_reddit_posts()
+    print("matching_posts_info", matching_posts_info)

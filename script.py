@@ -64,54 +64,6 @@ def get_reddit_posts():
     # Sort asc by the keyword count, then desc by weighted score (can't sort by post_dict)
     # matching_posts_info.sort(key=lambda x: (x[0], -1 * x[1]))
     return matching_posts_info
-
-# def send_email():
-    # matching_posts_info = get_reddit_posts()
-    # print(matching_posts_info)
-    # reddit_email_content = ''
-    # for keyword_count, weighted_score, post in matching_posts_info:
-    #     # Append info for this relevant post to the email content
-    #     reddit_email_content += post['title'] + '<br>' + 'Score: ' + str(post['score']) + \
-    #         '<br>' + 'Comments: ' + \
-    #         str(post['comment_count']) + '<br>' + post['url'] + '<br><br>'
-    # if len(matching_posts_info) > 0:
-    #     email_list = [
-    #         secrets.RECEIVER_EMAIL
-    #         # Add any other email addresses to send to
-    #     ]
-    #     subject = 'Hey you! I got something for you to check out...'
-    #     # Port 587 is port to use when sending emails from an app with TLS required
-    #     # See https://support.google.com/a/answer/176600?hl=en
-    #     server = smtplib.SMTP('smtp.gmail.com:587')
-    #     server.ehlo()
-    #     server.starttls()
-    #     server.login(secrets.SENDER_EMAIL, secrets.SENDER_PASSWORD)
-    #     for email_address in email_list:
-    #         # Send emails in multiple part messages
-    #         msg = MIMEMultipart('alternative')
-    #         msg['Subject'] = subject
-    #         msg['From'] = secrets.SENDER_EMAIL
-    #         msg['To'] = email_address
-    #         # HTML of email content
-    #         html = '''\
-    #         <html>
-    #           <head></head>
-    #           <body>
-    #             <p>
-    #                 <b style='font-size:20px'>Hello to my favorite person!</b>,<br><br>
-    #                 I am ecstatic to report that the following posts may be of interest to you:<br>
-    #             </p>
-    #             %s
-    #             <p>
-    #                 <b style='font-size:20px'>With love from your reddit notification script <span style='color:#e06d81'>♥</span></b>
-    #             </p>
-    #           </body>
-    #         </html>
-    #         ''' % reddit_email_content
-    #         msg.attach(MIMEText(html, 'html'))
-    #         server.sendmail(secrets.SENDER_EMAIL,
-    #                         email_address, msg.as_string())
-    #     server.quit()
 def deEmojify(inputString):
     return inputString.encode('ascii', 'ignore').decode('ascii')
 

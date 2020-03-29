@@ -72,8 +72,9 @@ if __name__ == "__main__":
     matching_posts_info = get_reddit_posts()
     # writing results to a file
     # print(matching_posts_info_string)
-    with open("./node/posts.dat", "w") as file:
+    cwd = os.getcwd()
+    with open(cwd + "/node/posts.dat", "w") as file:
         file.write(deEmojify(matching_posts_info_string))
     # bashCommand = "node index.js " + matching_posts_info_string + secrets.PASS_GMAIL 
-    os.system("cd node && node index.js")
+    os.system("cd " + cwd + "/node && node index.js")
 

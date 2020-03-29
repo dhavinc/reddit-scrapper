@@ -15,8 +15,7 @@ COMMENT_WEIGHT = 1
 MIN_RELEVANT_WEIGHTED_SCORE = 20
 # The following tuple contains 1. list of required terms/stems, 2. list of secondary terms,
 # 3. min number of secondary terms needed to be a match
-# KEYWORDS_GROUP = (['angular'], ['security', 'nodejs', 'new', 'node js', 'mean'], 1)
-KEYWORDS_GROUP = (['angular'], ['true', 'crazy', 'real'], 1)
+KEYWORDS_GROUP = ([], ['angular', 'python', 'security', 'nodejs', 'new', 'mean'], 1)
 matching_posts_info_string = ""
 # Returns a count of secondary terms if is relevant, -1 otherwise
 
@@ -50,7 +49,6 @@ def get_reddit_posts():
     # Tip: You could also explore top posts, new posts, etc.
     # See https://praw.readthedocs.io/en/latest/getting_started/quick_start.html#obtain-submission-instances-from-a-subreddit
     for submission in subreddit.rising(limit=NUM_POSTS_TO_EXPLORE):
-        print(submission)
         keyword_count = get_keyword_count(submission.title.lower())
         weighted_score = SCORE_WEIGHT * submission.score + \
             COMMENT_WEIGHT * len(list(submission.comments))
@@ -62,63 +60,67 @@ def get_reddit_posts():
         matching_posts_info.append(
             (keyword_count, weighted_score, post_dict))
         global matching_posts_info_string
-        matching_posts_info_string += matching_posts_info_string + post_dict.get('url') + ' '
+        matching_posts_info_string += matching_posts_info_string + post_dict.get('title').replace(" ", "_") + '?' + post_dict.get('url')  + ' '
     # Sort asc by the keyword count, then desc by weighted score (can't sort by post_dict)
     # matching_posts_info.sort(key=lambda x: (x[0], -1 * x[1]))
     return matching_posts_info
 
 # def send_email():
-    matching_posts_info = get_reddit_posts()
-    print(matching_posts_info)
-    reddit_email_content = ''
-    for keyword_count, weighted_score, post in matching_posts_info:
-        # Append info for this relevant post to the email content
-        reddit_email_content += post['title'] + '<br>' + 'Score: ' + str(post['score']) + \
-            '<br>' + 'Comments: ' + \
-            str(post['comment_count']) + '<br>' + post['url'] + '<br><br>'
-    if len(matching_posts_info) > 0:
-        email_list = [
-            secrets.RECEIVER_EMAIL
-            # Add any other email addresses to send to
-        ]
-        subject = 'Hey you! I got something for you to check out...'
-        # Port 587 is port to use when sending emails from an app with TLS required
-        # See https://support.google.com/a/answer/176600?hl=en
-        server = smtplib.SMTP('smtp.gmail.com:587')
-        server.ehlo()
-        server.starttls()
-        server.login(secrets.SENDER_EMAIL, secrets.SENDER_PASSWORD)
-        for email_address in email_list:
-            # Send emails in multiple part messages
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = secrets.SENDER_EMAIL
-            msg['To'] = email_address
-            # HTML of email content
-            html = '''\
-            <html>
-              <head></head>
-              <body>
-                <p>
-                    <b style='font-size:20px'>Hello to my favorite person!</b>,<br><br>
-                    I am ecstatic to report that the following posts may be of interest to you:<br>
-                </p>
-                %s
-                <p>
-                    <b style='font-size:20px'>With love from your reddit notification script <span style='color:#e06d81'>♥</span></b>
-                </p>
-              </body>
-            </html>
-            ''' % reddit_email_content
-            msg.attach(MIMEText(html, 'html'))
-            server.sendmail(secrets.SENDER_EMAIL,
-                            email_address, msg.as_string())
-        server.quit()
-
+    # matching_posts_info = get_reddit_posts()
+    # print(matching_posts_info)
+    # reddit_email_content = ''
+    # for keyword_count, weighted_score, post in matching_posts_info:
+    #     # Append info for this relevant post to the email content
+    #     reddit_email_content += post['title'] + '<br>' + 'Score: ' + str(post['score']) + \
+    #         '<br>' + 'Comments: ' + \
+    #         str(post['comment_count']) + '<br>' + post['url'] + '<br><br>'
+    # if len(matching_posts_info) > 0:
+    #     email_list = [
+    #         secrets.RECEIVER_EMAIL
+    #         # Add any other email addresses to send to
+    #     ]
+    #     subject = 'Hey you! I got something for you to check out...'
+    #     # Port 587 is port to use when sending emails from an app with TLS required
+    #     # See https://support.google.com/a/answer/176600?hl=en
+    #     server = smtplib.SMTP('smtp.gmail.com:587')
+    #     server.ehlo()
+    #     server.starttls()
+    #     server.login(secrets.SENDER_EMAIL, secrets.SENDER_PASSWORD)
+    #     for email_address in email_list:
+    #         # Send emails in multiple part messages
+    #         msg = MIMEMultipart('alternative')
+    #         msg['Subject'] = subject
+    #         msg['From'] = secrets.SENDER_EMAIL
+    #         msg['To'] = email_address
+    #         # HTML of email content
+    #         html = '''\
+    #         <html>
+    #           <head></head>
+    #           <body>
+    #             <p>
+    #                 <b style='font-size:20px'>Hello to my favorite person!</b>,<br><br>
+    #                 I am ecstatic to report that the following posts may be of interest to you:<br>
+    #             </p>
+    #             %s
+    #             <p>
+    #                 <b style='font-size:20px'>With love from your reddit notification script <span style='color:#e06d81'>♥</span></b>
+    #             </p>
+    #           </body>
+    #         </html>
+    #         ''' % reddit_email_content
+    #         msg.attach(MIMEText(html, 'html'))
+    #         server.sendmail(secrets.SENDER_EMAIL,
+    #                         email_address, msg.as_string())
+    #     server.quit()
+def deEmojify(inputString):
+    return inputString.encode('ascii', 'ignore').decode('ascii')
 
 if __name__ == "__main__":
     matching_posts_info = get_reddit_posts()
-    # print("matching_posts_info", matching_posts_info)
-    bashCommand = "node index.js " + matching_posts_info_string + secrets.PASS_GMAIL 
-    print(bashCommand)
-    os.system(bashCommand)
+    # writing results to a file
+    # print(matching_posts_info_string)
+    with open("./node/posts.dat", "w") as file:
+        file.write(deEmojify(matching_posts_info_string))
+    # bashCommand = "node index.js " + matching_posts_info_string + secrets.PASS_GMAIL 
+    os.system("cd node && node index.js")
+

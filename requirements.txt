@@ -9,7 +9,7 @@ idna==2.7
 itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
-numpy==1.15.1
+numpy==1.22.0
 praw==6.1.1
 prawcore==1.0.1
 pyfiglet==0.7.5
